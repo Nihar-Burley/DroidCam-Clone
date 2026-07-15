@@ -1,0 +1,47 @@
+# IDE and generated state
+.idea/
+.vs/
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Android/Gradle
+.gradle/
+android/.gradle/
+android/**/build/
+android/local.properties
+*.apk
+*.aab
+
+# .NET/CMake/native output
+**/bin/
+**/obj/
+windows/out/
+windows/build/
+CTestTestfile.cmake
+Testing/
+
+# Credentials and signing material
+*.jks
+*.keystore
+*.p12
+*.pfx
+*.cer
+*.pem
+*.key
+*.mobileprovision
+.env
+.env.*
+!*.env.example
+
+# Diagnostics and media captures
+diagnostics/
+logs/
+*.dmp
+*.etl
+*.pcap
+*.pcapng
+*.mp4
+*.mkv
+*.wav

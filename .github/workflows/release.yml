@@ -1,0 +1,52 @@
+name: Release
+
+on:
+  push:
+    tags: ['v*.*.*']
+
+permissions:
+  contents: write
+
+jobs:
+  package:
+    runs-on: windows-2025
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '10.0.x'
+      - name: Validate tag version
+        shell: pwsh
+        run: |
+          $version = Get-Content VERSION -Raw
+          if ($env:GITHUB_REF_NAME -ne "v$($version.Trim())") { throw 'Tag must match VERSION.' }
+      - name: Configure and build native release
+        run: cmake --preset windows-x64-release -S windows
+      - name: Build native release
+        run: cmake --build windows/out/build/windows-x64-release
+      - name: Publish desktop scaffold
+        run: dotnet publish windows/CamLink.Desktop/CamLink.Desktop.csproj --configuration Release --output dist/desktop
+      - name: Generate checksums
+        shell: pwsh
+        run: |
+          $root = (Resolve-Path dist).Path
+          Get-ChildItem dist -Recurse -File | Where-Object Name -ne 'SHA256SUMS.txt' | ForEach-Object {
+            $relative = $_.FullName.Substring($root.Length + 1).Replace('\', '/')
+            $hash = (Get-FileHash $_ -Algorithm SHA256).Hash.ToLower()
+            "$hash  $relative"
+          } | Set-Content dist/SHA256SUMS.txt
+      - name: Generate SBOM
+        uses: anchore/sbom-action@v0
+        with:
+          path: dist
+          format: cyclonedx-json
+          output-file: dist/sbom.cdx.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: camlink-${{ github.ref_name }}
+          path: dist/
+          if-no-files-found: error
+      - uses: softprops/action-gh-release@v2
+        with:
+          generate_release_notes: true
+          files: dist/**

@@ -9,11 +9,11 @@ plugins {
 }
 
 extensions.configure<ApplicationExtension> {
-  namespace = "local.camlink"
+  namespace = "com.camlink.local"
   compileSdk = 35
 
   defaultConfig {
-    applicationId = "local.camlink"
+    applicationId = "com.camlink.local"
     minSdk = 29
     targetSdk = 35
     versionCode = 1
@@ -22,6 +22,7 @@ extensions.configure<ApplicationExtension> {
 
   buildFeatures {
     buildConfig = true
+    compose = true
   }
 
   compileOptions {
